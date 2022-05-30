@@ -1,0 +1,167 @@
+.bar {
+    background-color: #282a36;
+    color: #f8f8f2;
+}
+
+/* Clock */
+
+.clock * {
+    padding: 5px;
+    margin: 0px;
+    font-size: 24px;
+}
+
+.hours {
+    color: #bd93f9;
+    margin-top: 5px;
+    padding-bottom: 10px;
+}
+
+.mins {
+    background-color: #bd93f9;
+    border-radius: 8px;
+    padding: 7px;
+}
+
+/* Workspaces */
+
+.onWks {
+    color: #bd93f9;
+}
+
+.onWks, .offWks {
+    padding: 0px;
+    margin: 0px;
+}
+
+.wksSep {
+    color: #44475a;
+    letter-spacing: -2px;
+}
+
+/* Tray */
+
+.tray_btn {
+    margin-bottom: 7px;
+}
+
+.tray_btn * {
+    margin: 4px;
+}
+
+.btn_shut, .btn_rest, .btn_sleep {
+    all: unset;
+    margin: 7px;
+    padding: 5px;
+    border: 1.4px solid transparent;
+    border-radius: 6px;
+    
+    transition: all ease-in-out;
+}
+
+.btn_shut:hover {
+    border-color: #ff5555;
+}
+
+.btn_rest:hover {
+    border-color: #ffb86c;
+}
+
+.btn_sleep:hover {
+    border-color: #50fa7b;
+}
+
+/* Progress bars*/
+
+.progs * {
+    margin: 1px;
+    padding: 0;
+}
+
+.progs * trough {
+    min-height: 250px;
+}
+
+.progDesc {
+    margin: 0;
+    padding: 0;
+}
+
+.cpuP progress {
+    background-color: #6272a4;
+    min-height: 10px;
+}
+
+.ramP progress {
+    background-color: #f8f8f2;
+}
+
+.gpu1P1 progress, .gpu2P1 progress {
+    background-color: #50fa7b;
+}
+
+.gpu1P2 progress, .gpu2P2 progress {
+    background-color: #ffb86c;
+}
+
+.progbar, .progbarS {
+    margin: 3px;
+}
+
+.progbar trough {
+    min-height: 100px;
+}
+
+/* Popups*/
+
+.shpop_main, .rtpop_main {
+    background-color: #282a36;
+}
+
+/* Shutdown menu*/
+
+.shpop_text {
+    letter-spacing: 0.07em;
+}
+
+.shpop_main {
+    padding: 10px;
+    border: 3px solid #ff5555;
+    border-radius: 6px;
+}
+
+.shpop_btns * {
+    all: unset;
+    background-color: transparent;
+    padding: 2px;
+    border: 3px solid transparent;
+    border-radius: 6px;
+}
+
+.shpop_btns *:hover {
+    border-color: #ff5555;
+}
+
+/* Restart menu*/
+
+.rtpop_text {
+    letter-spacing: 0.07em;
+}
+
+.rtpop_main {
+    padding: 10px;
+    border: 3px solid #ffb86c;
+    border-radius: 6px;
+}
+
+.rtpop_btns * {
+    all: unset;
+    background-color: transparent;
+    padding: 2px;
+    border: 3px solid transparent;
+    border-radius: 6px;
+}
+
+.rtpop_btns *:hover {
+    border-color: #ffb86c;
+}

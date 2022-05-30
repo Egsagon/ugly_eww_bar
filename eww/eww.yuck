@@ -1,0 +1,328 @@
+; ============================= ;
+; ========== EWW BAR ========== ;
+; ============================= ;
+
+; date polls
+(defpoll hour :interval "1s" `date +%H`)
+(defpoll mins :interval "1s" `date +%M`)
+
+; i3 things polls
+(defpoll workspacesJSON :interval "1s" `i3-msg -t get_workspaces`)
+(defpoll i3mode :interval "1s" `i3-msg -t get_binding_state`)
+
+; monitoring polls
+(defpoll cpuPercent :interval "1s" `grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage}'`)
+(defpoll ramPercent :interval "1s" `free | grep Mem | awk '{print $4/$2 * 100.0}'`)
+(defpoll gpuUge :interval "1s" `python3 -m gpustat |grep M2000|awk '{print $6}'|tr -d " %"`)
+(defpoll gpuTemp :interval "1s" `python3 -m gpustat |grep M2000|awk '{print $5}'|tr -d "'C," `)
+(defpoll gpuUge2 :interval "1s" `python3 -m gpustat |grep K2200|awk '{print $6}'|tr -d " %"`)
+(defpoll gpuTemp2 :interval "1s" `python3 -m gpustat |grep K2200|awk '{print $5}'|tr -d "'C," `)
+
+; clock widget
+(defwidget clock []
+  (box
+    :orientation "vertical"
+    :halign "fill"
+    :class "clock"
+    :space-evenly false
+    
+    (label :text hour :class "hours")
+    (label :text mins :class "mins")
+  )
+)
+
+; workspaces widgets
+(defwidget workspaces []
+  (box
+    :orientation "vertical"
+    :halign "fill"
+    :valign "center"
+    :space-evenly false
+
+    ; "━━━"
+
+    (box
+      :orientation "horizontal"
+      :halign "center"
+
+      (for w in workspacesJSON
+        (label
+          :class {w['focused'] ? "onWks" : "offWks"}
+          :text " ${w['output'] == 'DP-1' ? w['name'] : 'X'} "
+          :visible {w["output"] == "DP-1"}
+        )
+      )
+    )
+
+    (label
+      :text "├───┤"
+      :class "wksSep"
+    )
+
+    (box
+      :orientation "horizontal"
+      :halign "center"
+
+      (for w in workspacesJSON
+        (label
+          :class {w['focused'] ? "onWks" : "offWks"}
+          :text " ${w['output'] == 'DP-2' ? w['name'] : 'X'} "
+          :visible {w["output"] == "DP-2"}
+        )
+      )
+    )
+
+    ""
+
+    (label
+      :text {i3mode == '{"name":"resize"}' ? "⇋" : ""}
+      ;:style "background-color: ${i3mode == '{"name":"resize"}' ? "red" : "white"}"
+    )
+
+  )
+)
+
+; tray buttons
+(defwidget tray []
+  (box
+    :orientation "vertical"
+    :halign "center"
+    :valign "end"
+    :space-evenly false
+
+    :class "tray_btn"
+
+    ;(label
+    ;  :text "────"
+    ;  :class "wksSep"
+    ;)
+
+    (button
+      :onclick "eww open shut"
+      :class "btn_shut"
+      
+      (image
+        :path "/home/egsagon/.config/eww/power.png"
+        :image-width 20
+        :image-height 20
+      )
+    )
+
+    (button
+      :onclick "eww open rest"
+      :class "btn_rest"
+
+      (image
+        :path "/home/egsagon/.config/eww/restart.png"
+        :image-width 20
+        :image-height 20
+      )
+    )
+
+    (button
+      :onclick "customLock"
+      :class "btn_sleep"
+
+      (image
+        :path "/home/egsagon/.config/eww/sleep.png"
+        :image-width 20
+        :image-height 20
+      )
+    )
+  )
+)
+
+; progress bars
+(defwidget prog []
+  (box
+    :orientation "hoziontal"
+    :halign "center"
+
+    ; CPU
+    (box
+      :orientation "vertical"
+
+      (progress
+        :value cpuPercent
+        :orientation "vertical"
+        :flipped true
+        :class "cpuP progbar"
+        :halign "start"
+      )
+    )
+
+    ; RAM
+    (box
+      :orientation "vertical"
+
+      (progress
+        :value ramPercent
+        :orientation "vertical"
+        :flipped true
+        :class "ramP progbar"
+        :halign "start"
+      )
+    )
+
+    ; GPU 1
+    (box
+      :orientation "vertical"
+
+      ; GPU HEAT
+      (progress
+        :value gpuTemp
+        :orientation "vertical"
+        :flipped true
+        :class "gpu1P1 progbarS"
+      )
+
+      ; GPU USAGE
+      (progress
+        :value gpuUge
+        :orientation "vertical"
+        :flipped true
+        :class "gpu1P2 progbarS"
+      )
+    )
+
+    ; GPU2
+    (box
+      :orientation "vertical"
+
+      ; GPU HEAT
+      (progress
+        :value gpuTemp2
+        :orientation "vertical"
+        :flipped true
+        :class "gpu2P1 progbarS"
+      )
+
+      ; GPU USAGE
+      (progress
+        :value gpuUge2
+        :orientation "vertical"
+        :flipped true
+        :class "gpu2P2 progbarS"
+      )
+    )
+  )
+)
+
+; main content
+(defwidget content []
+  (box
+    :orientation "vertical"
+    :halign "fill"
+    :space-evenly true
+  
+    (clock)
+    (workspaces)
+    (prog)
+    ; "A A A A"
+    (tray)
+  )
+)
+
+; bar window
+(defwindow bar
+           :monitor 0
+           :geometry (geometry :x "24px"
+                               :y "0px"
+                               :width "60px"
+                               :height "1002px"
+                               :anchor "left center")
+
+           ;:stacking "fg"
+           ;:windowtype "dock"
+	   :focusable true
+           :wm-ignore true
+           ;:class bar
+	   :reserve (struts :side "left" :distance "10%")
+           (content)
+)
+
+; =================== ;
+; == SHUTDOWN MENU == ;
+; =================== ;
+
+; Shutdown popup content
+(defwidget shutContent []
+  (box
+    :orientation "vertical"
+    :class "shpop_main"
+
+    (label
+      :text "Are you sure you want to shut down?"
+      :class "shpop_text"
+    )
+
+    (box
+      :orientation "horizontal"
+      :class "shpop_btns"
+
+      (button
+        :onclick "eww close shut"
+        "No"
+      )
+
+      (button
+        :onclick "eww close shut && shutdown now"
+        "Yes"
+      )
+    )
+  )
+)
+
+; shutdown popup
+(defwindow shut
+  :monitor 0
+  :geometry (geometry :x "109px" :y "-110px"
+                      :width "300px" :height "60px"
+                      :anchor "left bottom")
+  :wm-ignore true
+  :focusable true
+  (shutContent)
+)
+
+; ================== ;
+; == RESTART MENU == ;
+; ================== ;
+
+; restart popup content
+(defwidget restContent []
+  (box
+    :orientation "vertical"
+    :class "rtpop_main"
+
+    (label
+      :text "Are you sure you want to restart?"
+      :class "rtpop_text"
+    )
+
+    (box
+      :orientation "horizontal"
+      :class "rtpop_btns"
+
+      (button
+        :onclick "eww close rest"
+        "No"
+      )
+
+      (button
+        :onclick "eww close rest && reboot"
+        "Yes"
+      )
+    )
+  )
+)
+
+; restart popup
+(defwindow rest
+  :monitor 0
+  :geometry (geometry :x "109px" :y "-60px"
+                      :width "300px" :height "60px"
+                      :anchor "left bottom")
+  :wm-ignore true
+  :focusable true
+  (restContent)
+)
